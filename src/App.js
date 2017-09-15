@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
-import FormViewer from './components/FormViewer'
+import FormViewerContainer from './components/FormViewerContainer';
+import OffsetGrid from './components/OffsetGrid';
+import { createStore } from 'redux'
+import {Provider} from "react-redux";
+import reducers from './reducers/FormsReducer'
 
 class App extends Component {
   render() {
@@ -25,9 +29,18 @@ class App extends Component {
   			x: 200,
   			y: 225,
   		},
-  	];
+  	],
+    store = createStore(reducers);
+  console.log(points);
+  	
     return (
-      <FormViewer width={300} height={300} points={points}/>
+
+    	<Provider store={store}>
+        <div>
+        		<FormViewerContainer width={300} height={300}/>
+        		<OffsetGrid/>
+        </div>
+      </Provider>
     );
   }
 }

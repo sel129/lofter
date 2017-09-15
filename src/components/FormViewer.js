@@ -6,13 +6,18 @@ class FormViewer extends Component {
   constructor(props) {
     super(props);
     
-    let controlPoints = this.generateInitialControlPoints(this.props.points);
+    //let controlPoints = this.generateInitialControlPoints(this.props.points);
     this.state = {
-      controlPoints: controlPoints,
+      controlPoints: [],
       showControlPoints: true,
       showPoints: true,
       showVectors: true
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    let controlPoints = this.generateInitialControlPoints(this.removeGaps(nextProps.points));
+    this.setState({controlPoints: controlPoints});
   }
 
   generateInitialControlPoints(points) {
@@ -28,6 +33,10 @@ class FormViewer extends Component {
     }
 
     return controlPoints;
+  }
+
+  removeGaps(points) {
+    return points.filter(n => true);
   }
 
   mouseDown(key) {
@@ -65,6 +74,9 @@ class FormViewer extends Component {
   }
 
   convertPointsToPath(points) {
+    if(points.length < 1) {
+      return null;
+    }
     let path = `M ${points[0].x} ${points[0].y} `;
     
     for(let i = 1; i < points.length; i++) {
@@ -115,10 +127,11 @@ class FormViewer extends Component {
   }
 
   render() {
-    let path = this.convertPointsToPath(this.props.points);
-    let points = this.renderPoints(this.props.points);
+    let noGaps = this.removeGaps(this.props.points);
+    let path = this.convertPointsToPath(noGaps);
+    let points = this.renderPoints(noGaps);
     let controlPoints = this.renderControlPoints(this.state.controlPoints);
-    let vectors = this.renderVectors(this.props.points, this.state.controlPoints);
+    let vectors = this.renderVectors(noGaps, this.state.controlPoints);
     return (
       <div>
         <svg width={this.props.width} height={this.props.height} onMouseMove={this.mouseMove.bind(this)} onMouseUp={this.mouseUp.bind(this)}>
