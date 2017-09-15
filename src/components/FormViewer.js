@@ -1,12 +1,18 @@
 import React, { Component } from 'react';
 import Axis from './Axis';
+import Checkbox from 'react-bootstrap/lib/Checkbox';
 
 class FormViewer extends Component {
   constructor(props) {
     super(props);
     
     let controlPoints = this.generateInitialControlPoints(this.props.points);
-    this.state = {control: {x:100, y:5}, controlPoints: controlPoints};
+    this.state = {
+      controlPoints: controlPoints,
+      showControlPoints: true,
+      showPoints: true,
+      showVectors: true
+    };
   }
 
   generateInitialControlPoints(points) {
@@ -46,6 +52,18 @@ class FormViewer extends Component {
     }
   }
 
+  showControlPointsClicked(evt) {
+    this.setState({showControlPoints: evt.target.checked});
+  }
+
+  showPointsClicked(evt) {
+    this.setState({showPoints: evt.target.checked});
+  }
+
+  showVectorsClicked(evt) {
+    this.setState({showVectors: evt.target.checked});
+  }
+
   convertPointsToPath(points) {
     let path = `M ${points[0].x} ${points[0].y} `;
     
@@ -62,30 +80,35 @@ class FormViewer extends Component {
 
   renderControlPoints(points) {
     let circles = [];
-    points.forEach((point, index) => {
-      circles.push((<circle key={index} cx={point.x} cy={point.y} r="4" stroke="black" onMouseDown={this.mouseDown.bind(this, index)}/>));
-    });
-
+    if(this.state.showControlPoints) {
+      points.forEach((point, index) => {
+        circles.push((<circle key={index} cx={point.x} cy={point.y} r="4" stroke="black" onMouseDown={this.mouseDown.bind(this, index)}/>));
+      });
+    }
     return circles;
   }
 
   renderPoints(points) {
     let circles = [];
-    points.forEach((point, index) => {
-      circles.push((<circle key={index} cx={point.x} cy={point.y} r="2" stroke="red"/>));
-    });
+    if(this.state.showPoints) {
+      points.forEach((point, index) => {
+        circles.push((<circle key={index} cx={point.x} cy={point.y} r="2" stroke="red"/>));
+      });
+    }
 
     return circles;
   }
 
   renderVectors(points, controlPoints) {
     let vectors = [];
-    for(let i = 0; i < controlPoints.length; i++) {
-      let controlPoint = controlPoints[i],
-        point1 = points[i],
-        point2 = points[i+1];
-      vectors.push(<line key={`${i}-vector1`} x1={point1.x} y1={point1.y} x2={controlPoint.x} y2={controlPoint.y} stroke="green"/>);
-      vectors.push(<line key={`${i}-vector2`} x1={point2.x} y1={point2.y} x2={controlPoint.x} y2={controlPoint.y} stroke="green"/>);
+    if(this.state.showVectors) {
+      for(let i = 0; i < controlPoints.length; i++) {
+        let controlPoint = controlPoints[i],
+          point1 = points[i],
+          point2 = points[i+1];
+        vectors.push(<line key={`${i}-vector1`} x1={point1.x} y1={point1.y} x2={controlPoint.x} y2={controlPoint.y} stroke="green"/>);
+        vectors.push(<line key={`${i}-vector2`} x1={point2.x} y1={point2.y} x2={controlPoint.x} y2={controlPoint.y} stroke="green"/>);
+      }
     }
 
     return vectors;
@@ -97,13 +120,18 @@ class FormViewer extends Component {
     let controlPoints = this.renderControlPoints(this.state.controlPoints);
     let vectors = this.renderVectors(this.props.points, this.state.controlPoints);
     return (
-      <svg width={this.props.width} height={this.props.height} onMouseMove={this.mouseMove.bind(this)} onMouseUp={this.mouseUp.bind(this)}>
-        <Axis width={this.props.width} height={this.props.height}/>
-        <path d={path} stroke="black" fill="none"/>
-        {points}
-        {controlPoints}
-        {vectors}
-      </svg>
+      <div>
+        <svg width={this.props.width} height={this.props.height} onMouseMove={this.mouseMove.bind(this)} onMouseUp={this.mouseUp.bind(this)}>
+          <Axis width={this.props.width} height={this.props.height}/>
+          <path d={path} stroke="black" fill="none"/>
+          {points}
+          {controlPoints}
+          {vectors}
+        </svg>
+        <Checkbox checked={this.state.showControlPoints} onChange={this.showControlPointsClicked.bind(this)}>Show Control Points</Checkbox>
+        <Checkbox checked={this.state.showPoints} onChange={this.showPointsClicked.bind(this)}>Show points</Checkbox>
+        <Checkbox checked={this.state.showVectors} onChange={this.showVectorsClicked.bind(this)}>Show Vectors</Checkbox>
+      </div>
     );
   }
 }
