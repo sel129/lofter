@@ -6,7 +6,6 @@ class FormViewer extends Component {
   constructor(props) {
     super(props);
     
-    //let controlPoints = this.generateInitialControlPoints(this.props.points);
     this.state = {
       controlPoints: [],
       showControlPoints: true,
@@ -44,7 +43,7 @@ class FormViewer extends Component {
     if(this.state.changeControlPoint) {
       let controlPoints = this.state.controlPoints.slice();
 
-      controlPoints[this.state.controlPointIndex].x = evt.pageX;
+      controlPoints[this.state.controlPointIndex].x = evt.pageX - this.props.width/2;
       controlPoints[this.state.controlPointIndex].y = evt.pageY;
 
       this.setState({controlPoints: controlPoints});
@@ -69,20 +68,62 @@ class FormViewer extends Component {
     this.setState({showVectors: evt.target.checked});
   }
 
+  mirrorPoints(points) {
+    let mirror = [],
+      i = 0;
+    for(i = points.length - 1; i > -1; i--) {
+      mirror.push({x: (0 - points[i].x), y: points[i].y});
+    }
+
+    return mirror;
+  }
+
+  placePointsOnGrid(points, halfWidth) {
+    let newPoints = [];
+    points.forEach((point) => {
+      newPoints.push({x: halfWidth + point.x, y: point.y});
+    });
+
+    return newPoints;
+  }
+
   convertPointsToPath(points) {
-    if(points.length < 1) {
+    // render points first
+    let currentPoints = points.points,
+      index = 0;
+    if(currentPoints.length < 2) {
       return null;
     }
-    let path = `M ${points[0].x} ${points[0].y} `;
+    let path = `M ${currentPoints[0].x} ${currentPoints[0].y} `;
     
-    for(let i = 1; i < points.length; i++) {
+    for(index = 0; index < points.points.length -1; index++) {
       let coords,
-        controlPoint = this.state.controlPoints[i - 1];
-        
-      coords = `${controlPoint.x} ${controlPoint.y} ${points[i].x} ${points[i].y}`
+        controlPoint = points.controlPoints[index];
+      coords = `${controlPoint.x} ${controlPoint.y} ${currentPoints[index + 1].x} ${currentPoints[index + 1].y}`
+      
 
       path += (`Q ${coords} `);
     }
+
+    // render mirrored points seconds
+    currentPoints = points.mirrorPoints;
+    if(currentPoints.length < 1) {
+      return null;
+    }
+
+    // connect with mirror
+    path +=(`M ${points.mirrorPoints[0].x} ${points.mirrorPoints[0].y} `);
+    
+    index = 0;
+    for(index = 1; index < points.mirrorPoints.length; index++) {
+      let coords,
+        controlPoint = points.mirrorControlPoints[index - 1];
+      coords = `${controlPoint.x} ${controlPoint.y} ${currentPoints[index].x} ${currentPoints[index].y}`
+      
+
+      path += (`Q ${coords} `);
+    };
+
     return path;
   }
 
@@ -99,7 +140,7 @@ class FormViewer extends Component {
   renderPoints(points) {
     let circles = [];
     if(this.state.showPoints) {
-      points.forEach((point, index) => {
+      points.points.concat(points.mirrorPoints).forEach((point, index) => {
         circles.push((<circle key={index} cx={point.x} cy={point.y} r="2" stroke="red"/>));
       });
     }
@@ -112,8 +153,8 @@ class FormViewer extends Component {
     if(this.state.showVectors) {
       for(let i = 0; i < controlPoints.length; i++) {
         let controlPoint = controlPoints[i],
-          point1 = points[i],
-          point2 = points[i+1];
+          point1 = points.points[i],
+          point2 = points.points[i+1];
         vectors.push(<line key={`${i}-vector1`} x1={point1.x} y1={point1.y} x2={controlPoint.x} y2={controlPoint.y} stroke="green"/>);
         vectors.push(<line key={`${i}-vector2`} x1={point2.x} y1={point2.y} x2={controlPoint.x} y2={controlPoint.y} stroke="green"/>);
       }
@@ -123,10 +164,18 @@ class FormViewer extends Component {
   }
 
   render() {
-    let path = this.convertPointsToPath(this.props.points);
-    let points = this.renderPoints(this.props.points);
-    let controlPoints = this.renderControlPoints(this.state.controlPoints);
-    let vectors = this.renderVectors(this.props.points, this.state.controlPoints);
+    let mirrorPoints = this.mirrorPoints(this.props.points);
+    let mirrorControlPoints = this.mirrorPoints(this.state.controlPoints);
+    let movedPoints = {
+      points: this.placePointsOnGrid(this.props.points, this.props.width/2),
+      mirrorPoints: this.placePointsOnGrid(mirrorPoints, this.props.width/2), 
+      controlPoints: this.placePointsOnGrid(this.state.controlPoints, this.props.width/2),
+      mirrorControlPoints: this.placePointsOnGrid(mirrorControlPoints, this.props.width/2)
+    };
+    let path = this.convertPointsToPath(movedPoints);
+    let points = this.renderPoints(movedPoints);
+    let controlPoints = this.renderControlPoints(movedPoints.controlPoints);
+    let vectors = this.renderVectors(movedPoints, movedPoints.controlPoints);
     return (
       <div>
         <svg width={this.props.width} height={this.props.height} onMouseMove={this.mouseMove.bind(this)} onMouseUp={this.mouseUp.bind(this)}>

@@ -11,8 +11,8 @@ const mapStateToProps = (state) => {
     },
     mapDispatchToProps = (dispatch) => {
         return {
-            updateOffset: (offset, index) => {
-                dispatch(updateOffset(offset, index));
+            updateOffset: (offset, type, index) => {
+                dispatch(updateOffset(offset, type, index));
             }
         };
     };
