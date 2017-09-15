@@ -38,7 +38,8 @@ class App extends Component {
     	<Provider store={store}>
         <div>
         		<FormViewerContainer width={300} height={300}/>
-        		<OffsetGrid/>
+        		<OffsetGrid gridType={"waterline"}/>
+            <OffsetGrid gridType={"bottock"}/>
         </div>
       </Provider>
     );

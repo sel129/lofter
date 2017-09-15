@@ -10,7 +10,7 @@ class OffsetGrid extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      numberOfWaterLines: 5,
+      numberOfRows: 5,
       ImplicitOffset: 0
     }
   }
@@ -23,23 +23,26 @@ class OffsetGrid extends Component {
     this.setState({ImplicitOffset: evt.target.value});
   }
 
-  generateRows(numberOfWaterLines) {
-    let rows = []
-    for(let i = 0; i < numberOfWaterLines; i++) {
-      rows.push({
-        Waterline: `Waterline ${i}`,
+  generateRows(numberOfRows) {
+    const offsetColumnName = this.props.gridType === "waterline" ? "Waterline" : "Buttock";
+    let rows = [];
+    for(let i = 0; i < numberOfRows; i++) {
+      let row={        
         Offset: null,
         index: i
-      })
+      };
+      row[offsetColumnName] = `${offsetColumnName} ${i}`;
+      rows.push(row);
     }
 
     return rows;
   }
 
   generateColumnsMeta() {
+    const offsetColumnName = this.props.gridType === "waterline" ? "Waterline" : "Buttock";
     return [
       {
-        "columnName": "Waterline",
+        "columnName": offsetColumnName,
         "order": 1,
         "locked": false,
         "visible": true
@@ -60,8 +63,14 @@ class OffsetGrid extends Component {
     ]
   }
 
+  getColumns() {
+    const offsetColumnName = this.props.gridType === "waterline" ? "Waterline" : "Buttock";
+
+    return [offsetColumnName, "Offset"];
+  }
+
   render() {
-    let rows = this.generateRows(this.state.numberOfWaterLines),
+    let rows = this.generateRows(this.state.numberOfRows),
       columnsMeta = this.generateColumnsMeta();
     return (
       <div>
@@ -78,7 +87,7 @@ class OffsetGrid extends Component {
             onChange={this.ImplicitOffsetChange.bind(this)}
             value={this.state.ImplicitOffset}/>
         </FormGroup>
-        <Griddle results={rows} columnMetadata={columnsMeta} columns={['Waterline', 'Offset']}/>
+        <Griddle results={rows} columnMetadata={columnsMeta} columns={this.getColumns}/>
       </div>
     );
   }
