@@ -11,7 +11,7 @@ class FormViewer extends Component {
 
   generateInitialControlPoints(points) {
     let controlPoints = [];
-    for(let i = 1; i < points.length; i+=2) {
+    for(let i = 1; i < points.length; i++) {
       // control points are initially set to the midpoint between the start and end point of the curve
       let controlPoint = {
         x: ((points[i].x - points[i - 1].x) / 2) + points[i - 1].x,
@@ -47,22 +47,15 @@ class FormViewer extends Component {
   }
 
   convertPointsToPath(points) {
-    let path = `M ${points[0].x} ${points[0].y} `,
-      controlPointIndex = 0;
+    let path = `M ${points[0].x} ${points[0].y} `;
     
     for(let i = 1; i < points.length; i++) {
-      let bezierType = i%2 === 0 ? "T" : "Q",
-        coords;
-      if(bezierType === "Q") {
+      let coords,
+        controlPoint = this.state.controlPoints[i - 1];
         
-        let controlPoint = this.state.controlPoints[controlPointIndex++];
-        coords = `${controlPoint.x} ${controlPoint.y} ${points[i].x} ${points[i].y}`
+      coords = `${controlPoint.x} ${controlPoint.y} ${points[i].x} ${points[i].y}`
 
-      } else {
-        coords = `${points[i].x} ${points[i].y}`;
-      }
-
-      path += (`${bezierType} ${coords} `);
+      path += (`Q ${coords} `);
     }
     return path;
   }
@@ -85,18 +78,31 @@ class FormViewer extends Component {
     return circles;
   }
 
+  renderVectors(points, controlPoints) {
+    let vectors = [];
+    for(let i = 0; i < controlPoints.length; i++) {
+      let controlPoint = controlPoints[i],
+        point1 = points[i],
+        point2 = points[i+1];
+      vectors.push(<line key={`${i}-vector1`} x1={point1.x} y1={point1.y} x2={controlPoint.x} y2={controlPoint.y} stroke="green"/>);
+      vectors.push(<line key={`${i}-vector2`} x1={point2.x} y1={point2.y} x2={controlPoint.x} y2={controlPoint.y} stroke="green"/>);
+    }
+
+    return vectors;
+  }
+
   render() {
     let path = this.convertPointsToPath(this.props.points);
     let points = this.renderPoints(this.props.points);
     let controlPoints = this.renderControlPoints(this.state.controlPoints);
+    let vectors = this.renderVectors(this.props.points, this.state.controlPoints);
     return (
       <svg width={this.props.width} height={this.props.height} onMouseMove={this.mouseMove.bind(this)} onMouseUp={this.mouseUp.bind(this)}>
         <Axis width={this.props.width} height={this.props.height}/>
         <path d={path} stroke="black" fill="none"/>
-        <line x1="15" y1="15" x2={this.state.control.x} y2={this.state.control.y} stroke="green"/>
-        <line x1="100" y1="100" x2={this.state.control.x} y2={this.state.control.y} stroke="green"/>
         {points}
         {controlPoints}
+        {vectors}
       </svg>
     );
   }
