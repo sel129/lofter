@@ -55,18 +55,25 @@ class OffsetGrid extends Component {
         "customComponent": EditableGriddleContainer
       },
       {
-        "columnName": "index",
+        "columnName": "Order",
         "order": 3,
+        "locked": false,
+        "visible": true,
+        "customComponent": EditableGriddleContainer
+      },
+      {
+        "columnName": "index",
+        "order": 4,
         "locked": true,
         "visible": false
-      }
+      },
     ]
   }
 
   getColumns() {
     const offsetColumnName = this.props.gridType === "waterline" ? "Waterline" : "Buttock";
 
-    return [offsetColumnName, "Offset"];
+    return [offsetColumnName, "Offset", "Order"];
   }
 
   render() {
@@ -87,7 +94,7 @@ class OffsetGrid extends Component {
             onChange={this.ImplicitOffsetChange.bind(this)}
             value={this.state.ImplicitOffset}/>
         </FormGroup>
-        <Griddle results={rows} columnMetadata={columnsMeta} columns={this.getColumns}/>
+        <Griddle results={rows} columnMetadata={columnsMeta} columns={this.getColumns()}/>
       </div>
     );
   }
