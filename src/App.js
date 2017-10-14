@@ -7,34 +7,9 @@ import reducers from './reducers/FormsReducer'
 
 class App extends Component {
   render() {
-
-  	let points = [
-  		{
-  			x: 0,
-  			y: 0,
-  		},
-  		{
-  			x: 10,
-  			y: 50,
-  		},
-  		{
-  			x: 60,
-  			y: 150,
-  		},
-  		{
-  			x: 100,
-  			y: 200,
-  		},
-  		{
-  			x: 200,
-  			y: 225,
-  		},
-  	],
-    store = createStore(reducers);
-  console.log(points);
+    let store = createStore(reducers);
   	
     return (
-
     	<Provider store={store}>
         <div>
         		<FormViewerContainer width={300} height={300}/>
