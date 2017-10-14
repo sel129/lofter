@@ -4,7 +4,7 @@ import {
 import FormViewer from "./FormViewer";
 
 const mapStateToProps = (state) => {
-		const points = state.offsets.filter((offset) => {
+		const points = state.waterlines.filter((offset) => {
 			return offset !== undefined;
 		});
         return {

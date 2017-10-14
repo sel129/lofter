@@ -6,7 +6,8 @@ import editableGriddleComponent from "./editableGriddleComponent";
 
 const mapStateToProps = (state) => {
         return {
-            offsets: state.offsets
+            waterlines: state.waterlines,
+            buttocks: state.buttocks
         };
     },
     mapDispatchToProps = (dispatch) => {
