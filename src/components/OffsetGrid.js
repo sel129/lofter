@@ -24,7 +24,7 @@ class OffsetGrid extends Component {
   }
 
   generateRows(numberOfRows) {
-    const offsetColumnName = this.props.gridType === "waterline" ? "Waterline" : "Buttock";
+    const offsetColumnName = this.props.gridType === "waterlines" ? "Waterline" : "Buttock";
     let rows = [];
     for(let i = 0; i < numberOfRows; i++) {
       let row={        
@@ -39,7 +39,7 @@ class OffsetGrid extends Component {
   }
 
   generateColumnsMeta() {
-    const offsetColumnName = this.props.gridType === "waterline" ? "Waterline" : "Buttock";
+    const offsetColumnName = this.props.gridType === "waterlines" ? "Waterline" : "Buttock";
     return [
       {
         "columnName": offsetColumnName,
@@ -71,7 +71,7 @@ class OffsetGrid extends Component {
   }
 
   getColumns() {
-    const offsetColumnName = this.props.gridType === "waterline" ? "Waterline" : "Buttock";
+    const offsetColumnName = this.props.gridType === "waterlines" ? "Waterline" : "Buttock";
 
     return [offsetColumnName, "Offset", "Order"];
   }

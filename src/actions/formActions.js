@@ -2,14 +2,15 @@ import appConstants from "../constants/appConstants";
 
 const
 
-	updateOffset = (offset, type, index) => {
+	updateOffset = (value, valueType, tableType, index) => {
 		return {
 			type: appConstants.UPDATE_FORM,
-			offset: offset,
-			offsetType: type,
+			value: value,
+			valueType: valueType,
+			tableType: tableType,
 			index: index
 		};
-	};
+	}
 
 export {
 	updateOffset

@@ -5,11 +5,11 @@ import FormViewer from "./FormViewer";
 
 const mapStateToProps = (state) => {
 		const points = state.waterlines.filter((offset) => {
-			return offset !== undefined;
+			return offset && offset.x != undefined && offset.y != undefined;
 		});
 
         points.push(...state.buttocks.filter((offset) => {
-            return offset !== undefined;
+            return offset && offset.x !== undefined && offset.y != undefined;
         }));
 
         return {
