@@ -4,31 +4,34 @@ import {
 import FormViewer from "./FormViewer";
 
 const mapStateToProps = (state) => {
-		const points = state.waterlines.filter((offset) => {
-			return offset && offset.x !== undefined && offset.y !== undefined;
+		const waterlinePoints = state.forms[state.currentForm].waterlines.filter((offset) => {
+			return offset !== undefined;
+		});
+    const buttockPoints = state.forms[state.currentForm].buttocks.filter((offset) => {
+			return offset !== undefined;
 		});
 
-        points.push(...state.buttocks.filter((offset) => {
-            return offset && offset.x !== undefined && offset.y !== undefined;
-        }));
+    const allPoints = waterlinePoints.concat(buttockPoints)
+    const filteredPoints = allPoints.filter((point) => {
+      return point.x !== undefined && point.y !== undefined && point.order !== undefined;
+    })
 
-        points.sort((a, b) => {
-            if (a.order < b.order) {
-                return -1;
-            }
-            if (a.order > b.order) {
-                return 1;
-            }
-            // a must be equal to b
-            return 0;
-        });
+    return {
 
-        return {
-            points: points
-        };
-    },
-    mapDispatchToProps = (dispatch) => {
-        return {};
+        points: filteredPoints.sort((a, b) => {
+          if (a.order < b.order) {
+            return -1;
+          }
+          if (a.order > b.order) {
+            return 1;
+          }
+          // a must be equal to b
+          return 0;
+        })
     };
+},
+mapDispatchToProps = (dispatch) => {
+    return {};
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(FormViewer);

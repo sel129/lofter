@@ -1,21 +1,38 @@
 import React, { Component } from 'react';
 import FormViewerContainer from './components/FormViewerContainer';
-import OffsetGrid from './components/OffsetGrid';
+import DataPane from './components/DataPaneContainer';
 import { createStore } from 'redux'
 import {Provider} from "react-redux";
 import reducers from './reducers/FormsReducer'
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+
+import 'bootstrap/dist/css/bootstrap.css';
+
+
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.store = createStore(reducers);
+  }
+
   render() {
-    let store = createStore(reducers);
-  	
     return (
-    	<Provider store={store}>
-        <div>
-        		<FormViewerContainer width={300} height={300}/>
-        		<OffsetGrid gridType={"waterlines"}/>
-            <OffsetGrid gridType={"bottocks"}/>
-        </div>
+    	<Provider store={this.store}>
+        <Container fluid={true}>
+          <Row noGutters={true}>
+            <Col>
+              <DataPane/>
+            </Col>
+            <Col xs={8}>
+              <div style={{borderStyle: 'solid', borderWidth: '1px'}}>
+                <FormViewerContainer width={300} height={300}/>
+              </div>
+            </Col>
+          </Row>
+        </Container>
       </Provider>
     );
   }

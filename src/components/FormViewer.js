@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import Axis from './Axis';
-import Checkbox from 'react-bootstrap/lib/Checkbox';
+import Form from 'react-bootstrap/Form';
 
 class FormViewer extends Component {
   constructor(props) {
     super(props);
-    
+
     this.state = {
       controlPoints: [],
       showControlPoints: true,
@@ -34,17 +34,25 @@ class FormViewer extends Component {
     return controlPoints;
   }
 
-  mouseDown(key) {
-    this.setState({changeControlPoint: true, controlPointIndex: key});
+  mouseDown(key, evt) {
+    this.setState({
+      changeControlPoint: true,
+      controlPointIndex: key,
+      mouseDownPoint: {x: evt.pageX, y: evt.pageY},
+      originalControlPoint: {x: this.state.controlPoints[key].x, y: this.state.controlPoints[key].y}
+    });
   }
 
   mouseMove(evt) {
 
     if(this.state.changeControlPoint) {
       let controlPoints = this.state.controlPoints.slice();
-
-      controlPoints[this.state.controlPointIndex].x = evt.pageX - this.props.width/2;
-      controlPoints[this.state.controlPointIndex].y = evt.pageY;
+      const originalX = this.state.originalControlPoint.x;
+      const originalY = this.state.originalControlPoint.y;
+      const diffX = evt.pageX - this.state.mouseDownPoint.x;
+      const diffY = evt.pageY - this.state.mouseDownPoint.y;
+      controlPoints[this.state.controlPointIndex].x = (originalX + diffX); //- this.props.width/2;
+      controlPoints[this.state.controlPointIndex].y = originalY + diffY;
 
       this.setState({controlPoints: controlPoints});
     }
@@ -95,12 +103,12 @@ class FormViewer extends Component {
       return null;
     }
     let path = `M ${currentPoints[0].x} ${currentPoints[0].y} `;
-    
+
     for(index = 0; index < points.points.length -1; index++) {
       let coords,
         controlPoint = points.controlPoints[index];
       coords = `${controlPoint.x} ${controlPoint.y} ${currentPoints[index + 1].x} ${currentPoints[index + 1].y}`
-      
+
 
       path += (`Q ${coords} `);
     }
@@ -113,13 +121,13 @@ class FormViewer extends Component {
 
     // connect with mirror
     path +=(`M ${points.mirrorPoints[0].x} ${points.mirrorPoints[0].y} `);
-    
+
     index = 0;
     for(index = 1; index < points.mirrorPoints.length; index++) {
       let coords,
         controlPoint = points.mirrorControlPoints[index - 1];
       coords = `${controlPoint.x} ${controlPoint.y} ${currentPoints[index].x} ${currentPoints[index].y}`
-      
+
 
       path += (`Q ${coords} `);
     };
@@ -168,7 +176,7 @@ class FormViewer extends Component {
     let mirrorControlPoints = this.mirrorPoints(this.state.controlPoints);
     let movedPoints = {
       points: this.placePointsOnGrid(this.props.points, this.props.width/2),
-      mirrorPoints: this.placePointsOnGrid(mirrorPoints, this.props.width/2), 
+      mirrorPoints: this.placePointsOnGrid(mirrorPoints, this.props.width/2),
       controlPoints: this.placePointsOnGrid(this.state.controlPoints, this.props.width/2),
       mirrorControlPoints: this.placePointsOnGrid(mirrorControlPoints, this.props.width/2)
     };
@@ -185,9 +193,9 @@ class FormViewer extends Component {
           {controlPoints}
           {vectors}
         </svg>
-        <Checkbox checked={this.state.showControlPoints} onChange={this.showControlPointsClicked.bind(this)}>Show Control Points</Checkbox>
-        <Checkbox checked={this.state.showPoints} onChange={this.showPointsClicked.bind(this)}>Show points</Checkbox>
-        <Checkbox checked={this.state.showVectors} onChange={this.showVectorsClicked.bind(this)}>Show Vectors</Checkbox>
+        <Form.Check type="checkbox" checked={this.state.showControlPoints} onChange={this.showControlPointsClicked.bind(this)} label="Show Control Points" />
+        <Form.Check checked={this.state.showPoints} onChange={this.showPointsClicked.bind(this)} label="Show points" />
+        <Form.Check checked={this.state.showVectors} onChange={this.showVectorsClicked.bind(this)} label="Show Vectors" />
       </div>
     );
   }

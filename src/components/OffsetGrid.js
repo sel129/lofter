@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import Griddle from "griddle-react";
-import FormGroup from 'react-bootstrap/lib/FormGroup';
-import FormControl from 'react-bootstrap/lib/FormControl';
-import ControlLabel from 'react-bootstrap/lib/ControlLabel';
+import Form from 'react-bootstrap/Form';
+//import FormControl from 'react-bootstrap/FormControl';
+//import ControlLabel from 'react-bootstrap/ControlLabel';
 import EditableGriddleContainer from './EditableGriddleContainer';
+import OrderGriddleContainer from './OrderGriddleContainer';
 
 class OffsetGrid extends Component {
-  
+
   constructor(props) {
     super(props);
     this.state = {
@@ -24,11 +25,12 @@ class OffsetGrid extends Component {
   }
 
   generateRows(numberOfRows) {
-    const offsetColumnName = this.props.gridType === "waterlines" ? "Waterline" : "Buttock";
+    const offsetColumnName = this.props.gridType === "waterline" ? "Waterline" : "Buttock";
     let rows = [];
     for(let i = 0; i < numberOfRows; i++) {
-      let row={        
+      let row={
         Offset: null,
+        Order: null,
         index: i
       };
       row[offsetColumnName] = `${offsetColumnName} ${i}`;
@@ -39,7 +41,7 @@ class OffsetGrid extends Component {
   }
 
   generateColumnsMeta() {
-    const offsetColumnName = this.props.gridType === "waterlines" ? "Waterline" : "Buttock";
+    const offsetColumnName = this.props.gridType === "waterline" ? "Waterline" : "Buttock";
     return [
       {
         "columnName": offsetColumnName,
@@ -59,19 +61,19 @@ class OffsetGrid extends Component {
         "order": 3,
         "locked": false,
         "visible": true,
-        "customComponent": EditableGriddleContainer
+        "customComponent": OrderGriddleContainer
       },
       {
         "columnName": "index",
         "order": 4,
         "locked": true,
         "visible": false
-      },
+      }
     ]
   }
 
   getColumns() {
-    const offsetColumnName = this.props.gridType === "waterlines" ? "Waterline" : "Buttock";
+    const offsetColumnName = this.props.gridType === "waterline" ? "Waterline" : "Buttock";
 
     return [offsetColumnName, "Offset", "Order"];
   }
@@ -80,22 +82,22 @@ class OffsetGrid extends Component {
     let rows = this.generateRows(this.state.numberOfRows),
       columnsMeta = this.generateColumnsMeta();
     return (
-      <div>
-        <FormGroup>
-          <ControlLabel>Number of Waterlines</ControlLabel>
-          <FormControl 
-            type="text" 
+      <Form>
+        <Form.Group>
+          <Form.Label>Number of Waterlines</Form.Label>
+          <Form.Control
+            type="text"
             onChange={this.numberOfWaterlinesChange.bind(this)}
             value={this.state.numberOfWaterLines}/>
 
-          <ControlLabel>Implicit Offset</ControlLabel>
-          <FormControl 
-            type="text" 
+          <Form.Label>Implicit Offset</Form.Label>
+          <Form.Control
+            type="text"
             onChange={this.ImplicitOffsetChange.bind(this)}
             value={this.state.ImplicitOffset}/>
-        </FormGroup>
-        <Griddle results={rows} columnMetadata={columnsMeta} columns={this.getColumns()}/>
-      </div>
+        </Form.Group>
+        <Griddle results={rows} columnMetadata={columnsMeta} columns={this.getColumns}/>
+      </Form>
     );
   }
 }
