@@ -15,7 +15,7 @@ class FormViewer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let controlPoints = this.generateInitialControlPoints(nextProps.points);
+    const controlPoints = this.generateInitialControlPoints(this.scaledPoints(nextProps.points));
     this.setState({controlPoints: controlPoints});
   }
 
@@ -51,8 +51,8 @@ class FormViewer extends Component {
       const originalY = this.state.originalControlPoint.y;
       const diffX = evt.pageX - this.state.mouseDownPoint.x;
       const diffY = evt.pageY - this.state.mouseDownPoint.y;
-      controlPoints[this.state.controlPointIndex].x = (originalX + diffX); //- this.props.width/2;
-      controlPoints[this.state.controlPointIndex].y = originalY + diffY;
+      controlPoints[this.state.controlPointIndex].x = (originalX + (diffX * (200/this.props.width)));
+      controlPoints[this.state.controlPointIndex].y = (originalY + (diffY * (200/this.props.height))) ;
 
       this.setState({controlPoints: controlPoints});
     }
@@ -93,6 +93,25 @@ class FormViewer extends Component {
     });
 
     return newPoints;
+  }
+
+  scaledPoints(points) {
+    const {x, y} = points.reduce((accumulator, currentValue) => {
+      accumulator.x = currentValue.x >=0 ? Math.max(accumulator.x, currentValue.x) : Math.min(accumulator.x, currentValue.x);
+      accumulator.y = Math.max(accumulator.y, currentValue.y);
+      return accumulator;
+    }, {x:0,y:0});
+
+    const xScale = (this.props.width / x) * (100 / this.props.width);
+    const yScale = (this.props.height / y) * (200 / this.props.height);
+
+    this.scaleFactor = Math.min(Math.abs(xScale), Math.abs(yScale));
+
+    const scaledPoints = points.map((point) => {
+      return {x: point.x * this.scaleFactor, y: point.y * this.scaleFactor};
+    })
+
+    return scaledPoints;
   }
 
   convertPointsToPath(points) {
@@ -174,19 +193,20 @@ class FormViewer extends Component {
   render() {
     let mirrorPoints = this.mirrorPoints(this.props.points);
     let mirrorControlPoints = this.mirrorPoints(this.state.controlPoints);
-    let movedPoints = {
-      points: this.placePointsOnGrid(this.props.points, this.props.width/2),
-      mirrorPoints: this.placePointsOnGrid(mirrorPoints, this.props.width/2),
-      controlPoints: this.placePointsOnGrid(this.state.controlPoints, this.props.width/2),
-      mirrorControlPoints: this.placePointsOnGrid(mirrorControlPoints, this.props.width/2)
-    };
-    let path = this.convertPointsToPath(movedPoints);
-    let points = this.renderPoints(movedPoints);
-    let controlPoints = this.renderControlPoints(movedPoints.controlPoints);
-    let vectors = this.renderVectors(movedPoints, movedPoints.controlPoints);
+    let scaledPoints = {
+      points : this.scaledPoints(this.props.points),
+      mirrorPoints: this.scaledPoints(mirrorPoints),
+      controlPoints: this.state.controlPoints,
+      mirrorControlPoints: mirrorControlPoints
+    }
+
+    let path = this.convertPointsToPath(scaledPoints);
+    let points = this.renderPoints(scaledPoints);
+    let controlPoints = this.renderControlPoints(this.state.controlPoints);
+    let vectors = this.renderVectors(scaledPoints, this.state.controlPoints);
     return (
       <div>
-        <svg width={this.props.width} height={this.props.height} onMouseMove={this.mouseMove.bind(this)} onMouseUp={this.mouseUp.bind(this)}>
+        <svg width={this.props.width} height={this.props.height} onMouseMove={this.mouseMove.bind(this)} onMouseUp={this.mouseUp.bind(this)} viewBox={'-100 0 200 200'}>
           <Axis width={this.props.width} height={this.props.height}/>
           <path d={path} stroke="black" fill="none"/>
           {points}

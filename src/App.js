@@ -28,7 +28,7 @@ class App extends Component {
             </Col>
             <Col xs={8}>
               <div style={{borderStyle: 'solid', borderWidth: '1px'}}>
-                <FormViewerContainer width={300} height={300}/>
+                <FormViewerContainer width={400} height={400}/>
               </div>
             </Col>
           </Row>
